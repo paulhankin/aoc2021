@@ -10,15 +10,19 @@ var (
 	dayFlag = flag.Int("day", 1, "which day to run")
 )
 
-var days []func() error
+var days = initDays()
+
+func initDays() []func() error {
+	var r []func() error
+	for i := 0; i < 25; i++ {
+		day := i
+		r = append(r, func() error { return fmt.Errorf("no code for day %d", day+1) })
+	}
+	return r
+}
 
 func RegisterDay(day int, f func() error) {
-	day--
-	for day >= len(days) {
-		i := len(days)
-		days = append(days, func() error { return fmt.Errorf("no code for day %d", i) })
-	}
-	days[day] = f
+	days[day-1] = f
 }
 
 func main() {
@@ -27,5 +31,7 @@ func main() {
 	if day < 0 || day >= len(days) {
 		log.Fatalf("day %d out of range", *dayFlag)
 	}
-	days[day]()
+	if err := days[day](); err != nil {
+		log.Fatalf("error from day %d: %v", *dayFlag, err)
+	}
 }
