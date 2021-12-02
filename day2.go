@@ -49,7 +49,7 @@ func readDay2() ([]dxy, error) {
 		}
 		r = append(r, dxy{dir.dx * amt, dir.dy * amt})
 	}
-	return r, nil
+	return r, scanner.Err()
 }
 
 func day2() error {

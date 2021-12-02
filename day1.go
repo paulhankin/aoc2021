@@ -22,7 +22,7 @@ func readReport() ([]int, error) {
 		}
 		r = append(r, int(x))
 	}
-	return r, nil
+	return r, scanner.Err()
 }
 
 func intSum(d []int) int {
