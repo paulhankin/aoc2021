@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func readReport() ([]int, error) {
+func readDay1() ([]int, error) {
 	f, err := os.Open("day1.txt")
 	if err != nil {
 		return nil, fmt.Errorf("failed to read report: %v", err)
@@ -34,7 +34,7 @@ func intSum(d []int) int {
 }
 
 func day1() error {
-	data, err := readReport()
+	data, err := readDay1()
 	if err != nil {
 		return err
 	}
