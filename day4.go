@@ -125,7 +125,6 @@ func playBingo(bingo bingoData) (int, error) {
 
 func playBingoToLose(bingo bingoData) (int, error) {
 	won := map[int]bool{}
-
 	calls := map[int]bool{}
 	for _, call := range bingo.draw {
 		calls[call] = true
