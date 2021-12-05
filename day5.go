@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
@@ -76,23 +75,11 @@ func day5() error {
 		for _, v := range vents {
 			dx := v.to.x - v.from.x
 			dy := v.to.y - v.from.y
-			if dy == 0 {
-				for i := v.from.x; i-sgn(dx) != v.to.x; i += sgn(dx) {
-					board[coord2d{i, v.from.y}]++
-				}
-			} else if dx == 0 {
-				for i := v.from.y; i-sgn(dy) != v.to.y; i += sgn(dy) {
-					board[coord2d{v.from.x, i}]++
-				}
-			} else {
-				if dx != dy && dx != -dy {
-					log.Fatalf("found non-horizontal and non-diagonal line %v", v)
-				}
-				if part == 2 {
-					for i := 0; v.from.x+i-sgn(dx) != v.to.x; i += sgn(dx) {
-						board[coord2d{v.from.x + i, v.from.y + i*sgn(dy)*sgn(dx)}]++
-					}
-				}
+			if part == 1 && dx != 0 && dy != 0 {
+				continue
+			}
+			for i := 0; (i-1)*sgn(dx)+v.from.x != v.to.x || (i-1)*sgn(dy)+v.from.y != v.to.y; i++ {
+				board[coord2d{v.from.x + i*sgn(dx), v.from.y + i*sgn(dy)}]++
 			}
 		}
 		sum := 0
