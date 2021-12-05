@@ -63,7 +63,7 @@ func day2() error {
 		hor += d.dx
 		ver += d.dy
 	}
-	fmt.Println("part 1 =", hor*ver)
+	partPrint(1, hor*ver)
 
 	hor = 0
 	ver = 0
@@ -73,7 +73,7 @@ func day2() error {
 		hor += d.dx
 		ver += d.dx * aim
 	}
-	fmt.Println("part 2 =", hor*ver)
+	partPrint(2, hor*ver)
 
 	return nil
 }

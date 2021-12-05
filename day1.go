@@ -48,8 +48,8 @@ func day1() error {
 			inc3s++
 		}
 	}
-	fmt.Println("part 1 =", incs)
-	fmt.Println("part 2 =", inc3s)
+	partPrint(1, incs)
+	partPrint(2, inc3s)
 	return nil
 }
 

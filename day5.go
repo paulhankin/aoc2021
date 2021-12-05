@@ -63,7 +63,7 @@ func day5() error {
 		for _, b := range board {
 			sum += clamp(b-1, 0, 1)
 		}
-		fmt.Println("part", part, "=", sum)
+		partPrint(part, sum)
 	}
 	return nil
 }

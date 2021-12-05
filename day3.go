@@ -77,12 +77,12 @@ func day3() error {
 			epsilon |= uint32(1) << j
 		}
 	}
-	fmt.Println("part 1 =", gamma*epsilon)
+	partPrint(1, gamma*epsilon)
 
 	ogr := filterBits(in, true)
 	co2 := filterBits(in, false)
 
-	fmt.Println("part 2 =", ogr*co2)
+	partPrint(2, ogr*co2)
 	return nil
 }
 

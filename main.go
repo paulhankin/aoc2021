@@ -30,6 +30,10 @@ func RegisterDay(day int, f func() error) {
 	validDays |= 1 << uint32(day-1)
 }
 
+var partPrint = func(part int, result interface{}) {
+	fmt.Println("part", part, "=", result)
+}
+
 func main() {
 	flag.Parse()
 	if *dayFlag == 0 {

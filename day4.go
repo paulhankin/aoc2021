@@ -137,12 +137,12 @@ func day4() error {
 	if err != nil {
 		return err
 	}
-	fmt.Println("part 1 =", score)
+	partPrint(1, score)
 	score2, err := playBingoToLose(bingo)
 	if err != nil {
 		return err
 	}
-	fmt.Println("part 2 =", score2)
+	partPrint(2, score2)
 	return nil
 }
 
