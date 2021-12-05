@@ -7,29 +7,12 @@ import (
 	"strings"
 )
 
-type coord2d struct {
-	x int
-	y int
-}
-
 type vent struct {
 	from, to coord2d
 }
 
-func (c coord2d) String() string {
-	return fmt.Sprintf("%d,%d", c.x, c.y)
-}
-
 func (v vent) String() string {
 	return fmt.Sprintf("[%s->%s]", v.from, v.to)
-}
-
-func parseCoord2d(s string) (coord2d, error) {
-	coords, err := parseInts(s, ",")
-	if err != nil || len(coords) != 2 {
-		return coord2d{}, fmt.Errorf("failed to parse coords %q", s)
-	}
-	return coord2d{x: coords[0], y: coords[1]}, nil
 }
 
 func readDay5() ([]vent, error) {
@@ -53,16 +36,6 @@ func readDay5() ([]vent, error) {
 		r = append(r, vent{from: from, to: to})
 	}
 	return r, scanner.Err()
-}
-
-func sgn(x int) int {
-	if x > 0 {
-		return 1
-	}
-	if x < 0 {
-		return -1
-	}
-	return 0
 }
 
 func day5() error {

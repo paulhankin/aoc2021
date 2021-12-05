@@ -4,27 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 )
 
 type bingoData struct {
 	draw   []int
 	boards [][]int
-}
-
-func parseInts(s, sep string) ([]int, error) {
-	s = strings.TrimSpace(s)
-	parts := strings.FieldsFunc(s, func(r rune) bool { return strings.ContainsRune(sep, r) })
-	var r []int
-	for _, part := range parts {
-		x, err := strconv.Atoi(part)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse %q: %v", part, err)
-		}
-		r = append(r, x)
-	}
-	return r, nil
 }
 
 func readDraw(scanner *bufio.Scanner) ([]int, error) {
