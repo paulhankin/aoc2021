@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -51,15 +52,16 @@ func day5() error {
 			if part == 1 && dx != 0 && dy != 0 {
 				continue
 			}
+			if dx != 0 && dy != 0 && dx != dy && dx != -dy {
+				log.Fatal("found non-horizontal/vertical/diagonal line", v)
+			}
 			for i := 0; (i-1)*sgn(dx)+v.from.x != v.to.x || (i-1)*sgn(dy)+v.from.y != v.to.y; i++ {
 				board[coord2d{v.from.x + i*sgn(dx), v.from.y + i*sgn(dy)}]++
 			}
 		}
 		sum := 0
 		for _, b := range board {
-			if b > 1 {
-				sum++
-			}
+			sum += clamp(b-1, 0, 1)
 		}
 		fmt.Println("part", part, "=", sum)
 	}
