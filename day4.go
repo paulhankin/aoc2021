@@ -61,6 +61,7 @@ func readDay4() (bingoData, error) {
 	if err != nil {
 		return bingoData{}, err
 	}
+	defer f.Close()
 	var bingo bingoData
 
 	scanner := bufio.NewScanner(f)
