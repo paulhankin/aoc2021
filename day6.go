@@ -34,7 +34,9 @@ func day6() error {
 		}
 		maxDay := []int{0, 80, 256}[part]
 		for days := 0; days < maxDay; days++ {
-			nt := append(timers[1:], 0)
+			var nt []uint64
+			nt = append(nt, timers[1:]...)
+			nt = append(nt, 0)
 			nt[6] += timers[0]
 			nt[8] += timers[0]
 			timers = nt
