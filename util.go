@@ -37,6 +37,13 @@ func parseInts(s, sep string) ([]int, error) {
 	return r, nil
 }
 
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
 func sgn(x int) int {
 	if x > 0 {
 		return 1
