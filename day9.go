@@ -7,37 +7,38 @@ import (
 	"strings"
 )
 
-func readDay9() ([]string, error) {
+func readDay9() ([][]int, error) {
 	f, err := os.Open("day9.txt")
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
 	scanner := bufio.NewScanner(f)
-	var lines []string
+	var lines [][]int
 	for scanner.Scan() {
-		lines = append(lines, strings.TrimSpace(scanner.Text()))
+		var line []int
+		for _, b := range strings.TrimSpace(scanner.Text()) {
+			line = append(line, int(b-'0'))
+		}
+		lines = append(lines, line)
 	}
 	return lines, scanner.Err()
 }
 
 func day9() error {
-	lines, err := readDay9()
+	h, err := readDay9()
 	if err != nil {
 		return err
 	}
-	M := len(lines)
-	N := len(lines[0])
-	h := func(i, j int) int {
-		return int(lines[i][j] - '0')
-	}
+	M := len(h)
+	N := len(h[0])
 
 	uf := NewUnionFind(M * N)
 
 	risks := 0
 	for i := 0; i < M; i++ {
 		for j := 0; j < N; j++ {
-			if h(i, j) == 9 {
+			if h[i][j] == 9 {
 				continue
 			}
 			isLow := true
@@ -46,13 +47,13 @@ func day9() error {
 				if i+di < 0 || i+di >= M || j+dj < 0 || j+dj >= N {
 					continue
 				}
-				if h(i+di, j+dj) <= h(i, j) {
+				if h[i+di][j+dj] <= h[i][j] {
 					uf.Union((i+di)*N+(j+dj), i*N+j)
 					isLow = false
 				}
 			}
 			if isLow {
-				risks += h(i, j) + 1
+				risks += h[i][j] + 1
 			}
 		}
 	}
@@ -61,7 +62,7 @@ func day9() error {
 	sizes := map[int]int{}
 	for i := 0; i < M; i++ {
 		for j := 0; j < N; j++ {
-			if h(i, j) == 9 {
+			if h[i][j] == 9 {
 				continue
 			}
 			sizes[uf.Find(i*N+j)]++
