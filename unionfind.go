@@ -1,23 +1,25 @@
 package main
 
-type rankParent struct {
-	rank, parent int
-}
+import "log"
 
 // UnionFind is a disjoint set datstructure.
 type UnionFind struct {
-	nodes []rankParent
+	parent []int
+	// rank is at most log_2(n) so uint8 is sufficient
+	// for 2^256 elements.
+	rank []uint8
 }
 
 // NewUnionFind returns a disjoint set datastructure
 // with elements 0 to size-1.
 func NewUnionFind(size int) *UnionFind {
-	nodes := make([]rankParent, size)
+	parent := make([]int, size)
 	for i := 0; i < size; i++ {
-		nodes[i] = rankParent{0, i}
+		parent[i] = i
 	}
 	return &UnionFind{
-		nodes: nodes,
+		parent: parent,
+		rank:   make([]uint8, size),
 	}
 }
 
@@ -27,8 +29,8 @@ func NewUnionFind(size int) *UnionFind {
 func (uf *UnionFind) Find(x int) int {
 	// "Path splitting" -- setting each node's parent to their current
 	// grandfather, is a cache-friendly way of path compression.
-	for uf.nodes[x].parent != x {
-		x, uf.nodes[x].parent = uf.nodes[x].parent, uf.nodes[uf.nodes[x].parent].parent
+	for uf.parent[x] != x {
+		x, uf.parent[x] = uf.parent[x], uf.parent[uf.parent[x]]
 	}
 	return x
 }
@@ -40,15 +42,18 @@ func (uf *UnionFind) Union(x, y int) {
 	if rx == ry {
 		return
 	}
-	rankx := uf.nodes[rx].rank
-	ranky := uf.nodes[ry].rank
+	rankx := uf.rank[rx]
+	ranky := uf.rank[ry]
 	if rankx < ranky {
 		rx, ry = ry, rx
 	}
 	// rx has the larger rank and becomes the root node of the
 	// merged set.
-	uf.nodes[ry].parent = rx
+	uf.parent[ry] = rx
 	if rankx == ranky {
-		uf.nodes[rx].rank++
+		if uf.rank[rx] == 255 {
+			log.Fatal("rank 255 should not be possible without a huge number of elements")
+		}
+		uf.rank[rx]++
 	}
 }
