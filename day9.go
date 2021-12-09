@@ -85,7 +85,7 @@ func day9() error {
 			if heights[i2(i, j)] == 9 {
 				continue
 			}
-			sizes[uf.Root(i*N+j)]++
+			sizes[uf.Find(i*N+j)]++
 		}
 	}
 	var sizeSlice []int
