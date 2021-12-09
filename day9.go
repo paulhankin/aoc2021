@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"log"
 	"bufio"
 	"sort"
 	"strings"
@@ -43,54 +42,6 @@ func lowPoint(heights map[[2]int]int, i, j int) bool {
 	return true
 }
 
-
-type UnionFind2i struct {
-	Nodes []int
-	NodeIndex map[[2]int]int
-	Names [][2]int
-}
-
-func newUnionFind2i() *UnionFind2i {
-	return &UnionFind2i{
-		NodeIndex: map[[2]int]int{},
-	}
-}
-
-func (uf *UnionFind2i) Add(x [2]int) {
-	if _, ok := uf.NodeIndex[x]; ok {
-		return
-	}
-	uf.NodeIndex[x] = len(uf.Nodes)
-	uf.Nodes = append(uf.Nodes, len(uf.Nodes))
-	uf.Names = append(uf.Names, x)
-}
-
-func (uf *UnionFind2i) Root(x [2]int) [2]int {
-	idx, ok := uf.NodeIndex[x]
-	if !ok {
-		log.Fatal("root of non-existent node")
-	}
-	r := idx
-	for uf.Nodes[r] != r {
-		r = uf.Nodes[r]
-	}
-	for idx != r {
-		p := uf.Nodes[idx]
-		uf.Nodes[idx] = r
-		idx = p
-	}
-	return uf.Names[r]
-}
-
-func (uf *UnionFind2i) Union(x, y [2]int) {
-	rx := uf.NodeIndex[uf.Root(x)]
-	ry := uf.NodeIndex[uf.Root(y)]
-	if rx != ry {
-		uf.Nodes[rx] = ry
-	}
-}
-
-
 func day9() error {
 	lines, err := readDay9()
 	if err != nil {
@@ -123,15 +74,7 @@ func day9() error {
 		i2(0, -1),
 	}
 
-	uf := newUnionFind2i()
-	for i := 0; i < M; i++ {
-		for j := 0; j < N; j++ {
-			if heights[i2(i, j)] == 9 {
-				continue
-			}
-			uf.Add(i2(i, j))
-		}
-	}
+	uf := NewUnionFind(M * N)
 
 	for i := 0; i < M; i++ {
 		for j := 0; j < N; j++ {
@@ -145,18 +88,18 @@ func day9() error {
 					continue
 				}
 				if heights[i2(ii, jj)] <= heights[i2(i, j)] {
-					uf.Union(i2(ii, jj), i2(i, j))
+					uf.Union(ii*N+jj, i*N+j)
 				}
 			}
 		}
 	}
-	sizes := map[[2]int]int{}
+	sizes := map[int]int{}
 	for i := 0; i < M; i++ {
 		for j := 0; j < N; j++ {
 			if heights[i2(i, j)] == 9 {
 				continue
 			}
-			sizes[uf.Root(i2(i, j))]++
+			sizes[uf.Root(i*N+j)]++
 		}
 	}
 	var sizeSlice []int
