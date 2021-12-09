@@ -63,3 +63,28 @@ func clamp(x, min, max int) int {
 	}
 	return x
 }
+
+func i2b(x int) bool {
+	return x != 0
+}
+
+func b2i(x bool) int {
+	if x {
+		return 1
+	}
+	return 0
+}
+
+func dir4(i int) (int, int) {
+	i &= 3
+	dx := b2i(i == 0) - b2i(i == 2)
+	dy := b2i(i == 1) - b2i(i == 3)
+	return dx, dy
+}
+
+func dir8(i int) (int, int) {
+	i &= 7
+	dx := b2i(i == 7 || i == 0 || i == 2) - b2i(i == 4 || i == 5 || i == 6)
+	dy := b2i(i == 1 || i == 2 || i == 3) - b2i(i == 5 || i == 6 || i == 7)
+	return dx, dy
+}

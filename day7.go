@@ -39,12 +39,12 @@ func day7() error {
 	// and it doesn't matter if the length of the array is odd
 	// and the true mode lies between two elements -- either of
 	// them gives the same answer.
-	mode := crabs[len(crabs) / 2]
+	mode := crabs[len(crabs)/2]
 	// The mean m of a sequence of ints minimizes sum(|x[i] - m|^2).
 	// I guess that the optimal position of m that minimizes
 	// sum(|x[i]-m|^2 + |x[i]-m|)/2 is the mean rounded up or down.
 	mean1 := intSum(crabs) / len(crabs)
-	mean2 := intSum(crabs) / len(crabs) + 1
+	mean2 := intSum(crabs)/len(crabs) + 1
 	var fuel1, fuel21, fuel22 int
 	for _, c := range crabs {
 		fuel1 += abs(c - mode)

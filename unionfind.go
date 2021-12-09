@@ -41,11 +41,10 @@ func (uf *UnionFind) Union(x, y int) {
 	ranky := uf.Nodes[ry].rank
 	if rankx < ranky {
 		rx, ry = ry, rx
-		rankx, ranky = ranky, rankx 
+		rankx, ranky = ranky, rankx
 	}
 	uf.Nodes[rx].parent = ry
 	if rankx == ranky {
 		uf.Nodes[rx].rank++
 	}
 }
-

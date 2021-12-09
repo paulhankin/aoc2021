@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
 	"bufio"
+	"os"
 	"sort"
 	"strings"
 )
@@ -27,17 +27,11 @@ func i2(i, j int) [2]int {
 
 func lowPoint(heights map[[2]int]int, i, j int) bool {
 	b := heights[i2(i, j)]
-	if n, ok := heights[i2(i-1, j)]; ok && n <= b {
-		return false
-	}
-	if n, ok := heights[i2(i+1, j)]; ok && n <= b {
-		return false
-	}
-	if n, ok := heights[i2(i, j-1)]; ok && n <= b {
-		return false
-	}
-	if n, ok := heights[i2(i, j+1)]; ok && n <= b {
-		return false
+	for d := 0; d < 4; d++ {
+		di, dj := dir4(d)
+		if n, ok := heights[i2(i+di, j+dj)]; ok && n <= b {
+			return false
+		}
 	}
 	return true
 }
@@ -67,13 +61,6 @@ func day9() error {
 	}
 	partPrint(1, risks)
 
-	dirs := [][2]int {
-		i2(1, 0),
-		i2(-1, 0),
-		i2(0, 1),
-		i2(0, -1),
-	}
-
 	uf := NewUnionFind(M * N)
 
 	for i := 0; i < M; i++ {
@@ -81,14 +68,13 @@ func day9() error {
 			if heights[i2(i, j)] == 9 {
 				continue
 			}
-			for _, dij := range dirs {
-				ii := i + dij[0]
-				jj := j + dij[1]
-				if ii < 0 || ii >= M || jj < 0 || jj >= N {
+			for dd := 0; dd < 4; dd++ {
+				di, dj := dir4(dd)
+				if i+di < 0 || i+di >= M || j+dj < 0 || j+dj >= N {
 					continue
 				}
-				if heights[i2(ii, jj)] <= heights[i2(i, j)] {
-					uf.Union(ii*N+jj, i*N+j)
+				if heights[i2(i+di, j+dj)] <= heights[i2(i, j)] {
+					uf.Union((i+di)*N+(j+dj), i*N+j)
 				}
 			}
 		}
@@ -108,7 +94,7 @@ func day9() error {
 	}
 	sort.Ints(sizeSlice)
 	n := len(sizeSlice) - 1
-	partPrint(2, sizeSlice[n] * sizeSlice[n-1] * sizeSlice[n-2])
+	partPrint(2, sizeSlice[n]*sizeSlice[n-1]*sizeSlice[n-2])
 
 	return nil
 }
