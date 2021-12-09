@@ -19,16 +19,12 @@ func NewUnionFind(size int) *UnionFind {
 }
 
 func (uf *UnionFind) Root(x int) int {
-	r := x
-	for uf.Nodes[r].parent != r {
-		r = uf.Nodes[r].parent
+	// "Path splitting" -- setting each node's parent to their current
+	// grandfather, is a cache-friendly way of path compression.
+	for uf.Nodes[x].parent != x {
+		x, uf.Nodes[x].parent = uf.Nodes[x].parent, uf.Nodes[uf.Nodes[x].parent].parent
 	}
-	for x != r {
-		p := uf.Nodes[x].parent
-		uf.Nodes[x].parent = r
-		x = p
-	}
-	return r
+	return x
 }
 
 func (uf *UnionFind) Union(x, y int) {
@@ -39,12 +35,13 @@ func (uf *UnionFind) Union(x, y int) {
 	}
 	rankx := uf.Nodes[rx].rank
 	ranky := uf.Nodes[ry].rank
-	if rankx > ranky {
+	if rankx < ranky {
 		rx, ry = ry, rx
-		rankx, ranky = ranky, rankx
 	}
+	// rx has the larger rank and becomes the root node of the
+	// merged set.
 	uf.Nodes[ry].parent = rx
 	if rankx == ranky {
-		uf.Nodes[ry].rank++
+		uf.Nodes[rx].rank++
 	}
 }
