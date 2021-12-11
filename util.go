@@ -84,7 +84,7 @@ func dir4(i int) (int, int) {
 
 func dir8(i int) (int, int) {
 	i &= 7
-	dx := b2i(i == 7 || i == 0 || i == 2) - b2i(i == 4 || i == 5 || i == 6)
+	dx := b2i(i == 7 || i == 0 || i == 1) - b2i(i == 3 || i == 4 || i == 5)
 	dy := b2i(i == 1 || i == 2 || i == 3) - b2i(i == 5 || i == 6 || i == 7)
 	return dx, dy
 }
