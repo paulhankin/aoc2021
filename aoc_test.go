@@ -18,6 +18,7 @@ var expectedResults = map[int][2]interface{}{
 	9:  {444, 1168440},
 	10: {311895, 2904180541},
 	11: {1647, 348},
+	12: {5576, 152837},
 }
 
 func collectResults(f func() error) ([2]interface{}, error) {
