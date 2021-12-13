@@ -88,3 +88,17 @@ func dir8(i int) (int, int) {
 	dy := b2i(i == 1 || i == 2 || i == 3) - b2i(i == 5 || i == 6 || i == 7)
 	return dx, dy
 }
+
+func minint(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
+func maxint(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
