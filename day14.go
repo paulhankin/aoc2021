@@ -13,15 +13,16 @@ type reactions struct {
 	rsmap map[[2]byte]byte
 }
 
-func step14(x []byte, r *reactions) []byte {
-	y := make([]byte, 0, len(x)*2)
-	for i := 0; i < len(x)-1; i++ {
-		y = append(y, x[i])
-		if got := r.rsmap[[2]byte{x[i], x[i+1]}]; got != 0 {
-			y = append(y, got)
+func step14(pairs map[[2]byte]int, r *reactions) map[[2]byte]int {
+	y := map[[2]byte]int{}
+	for p, n := range pairs {
+		if got := r.rsmap[p]; got != 0 {
+			y[[2]byte{p[0], got}] += n
+			y[[2]byte{got, p[1]}] += n
+		} else {
+			y[p] += n
 		}
 	}
-	y = append(y, x[len(x)-1])
 	return y
 }
 
@@ -61,20 +62,36 @@ func day14() error {
 	if err != nil {
 		return err
 	}
-	x := append([]byte{}, r.start...)
-	for i := 0; i < 10; i++ {
-		x = step14(x, r)
+	for part := 1; part <= 2; part++ {
+		pairs := map[[2]byte]int{}
+		getx := func(i int) byte {
+			if i < 0 || i >= len(r.start) {
+				return '*'
+			}
+			return r.start[i]
+		}
+		for i := -1; i < len(r.start); i++ {
+			pairs[[2]byte{getx(i), getx(i + 1)}]++
+		}
+
+		steps := 10 + 30*b2i(part == 2)
+		for i := 0; i < steps; i++ {
+			pairs = step14(pairs, r)
+		}
+		counts := map[byte]int{}
+		for p, n := range pairs {
+			if p[0] == '*' {
+				continue
+			}
+			counts[p[0]] += n
+		}
+		m, M := 1<<62, 0
+		for _, c := range counts {
+			m = minint(m, c)
+			M = maxint(M, c)
+		}
+		partPrint(part, M-m)
 	}
-	counts := map[byte]int{}
-	for _, b := range x {
-		counts[b]++
-	}
-	m, M := 100000000, 0
-	for _, c := range counts {
-		m = minint(m, c)
-		M = maxint(M, c)
-	}
-	partPrint(1, M-m)
 	return nil
 }
 
