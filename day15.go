@@ -70,7 +70,6 @@ func minPath(lines [][]int) int {
 	c2i := func(i int) (int, int) {
 		return i / n, i % n
 	}
-	prev := make([]int, m*n)
 	Q := &distHeap{
 		h:   make([]*pointDist, m*n),
 		idx: make([]int, m*n),
@@ -78,7 +77,6 @@ func minPath(lines [][]int) int {
 	infinity := 1 << 62
 	dist := make([]pointDist, m*n)
 	for i := 0; i < m*n; i++ {
-		prev[i] = -1
 		dist[i] = pointDist{i, infinity}
 		Q.h[i] = &dist[i]
 		Q.idx[i] = i
@@ -102,7 +100,6 @@ func minPath(lines [][]int) int {
 				vi := Q.idx[v]
 				heap.Remove(Q, vi)
 				dist[v].dist = alt
-				prev[v] = u.i
 				heap.Push(Q, &dist[v])
 			}
 		}
