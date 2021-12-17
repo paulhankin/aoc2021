@@ -8,26 +8,22 @@ var (
 	day17input = day17range{207, 263, -115, -63}
 )
 
-// The possible number of steps that can result
-// in hitting the x-range of the target to how many
+// The possible number of steps (up to maxSteps) that can
+// result in hitting the x-range of the target to how many
 // initial dx produce that value.
-func solve17x(r day17range) map[int][]int {
+func solve17x(r day17range, maxSteps int) map[int][]int {
 	steps := map[int][]int{}
 	for dxx := 1; dxx <= r.xMax; dxx++ {
 		x := 0
 		dx := dxx
 		nStep := 0
-		stopSteps := 1000
-		for stopSteps > 0 && x <= r.xMax {
+		for nStep <= maxSteps && x <= r.xMax {
 			if x >= r.xMin {
 				steps[nStep] = append(steps[nStep], dxx)
 			}
 			nStep++
 			x += dx
 			dx -= sgn(dx)
-			if dx == 0 {
-				stopSteps--
-			}
 		}
 	}
 	return steps
@@ -41,7 +37,10 @@ type y17 struct {
 // Map from number of steps to the maximum y coord achieved and number of possible initial dy
 func solve17y(r day17range) map[int]y17 {
 	steps := map[int]y17{}
-	for dyy := -1000; dyy < 5000; dyy++ {
+	// If we choose an initial positive velocity V, then at some later point we'll
+	// return to y=0 with velocity -V, and on the next step be below V.
+	// So we only need to consider initial velocities from yMin to -yMin!
+	for dyy := r.yMin; dyy <= -r.yMin; dyy++ {
 		y := 0
 		maxY := 0
 		dy := dyy
@@ -61,8 +60,12 @@ func solve17y(r day17range) map[int]y17 {
 
 func day17() error {
 	r := day17input
-	viableX := solve17x(r)
 	viableY := solve17y(r)
+	maxSteps := 0
+	for s := range viableY {
+		maxSteps = maxint(maxSteps, s)
+	}
+	viableX := solve17x(r, maxSteps)
 	maxY := 0
 	got := map[[2]int]bool{}
 	for s, xs := range viableX {
