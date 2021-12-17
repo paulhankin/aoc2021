@@ -9,7 +9,7 @@ var (
 )
 
 // The possible number of steps (up to maxSteps) that can
-// result in hitting the x-range of the target to how many
+// result in hitting the x-range of the target to which
 // initial dx produce that value.
 func solve17x(r day17range, maxSteps int) map[int][]int {
 	steps := map[int][]int{}
@@ -34,7 +34,7 @@ type y17 struct {
 	ys   []int
 }
 
-// Map from number of steps to the maximum y coord achieved and number of possible initial dy
+// Map from number of steps to the maximum y coord achieved and the possible initial dy
 func solve17y(r day17range) map[int]y17 {
 	steps := map[int]y17{}
 	// If we choose an initial positive velocity V, then at some later point we'll
