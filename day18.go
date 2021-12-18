@@ -175,7 +175,10 @@ func day18() error {
 	partPrint(1, got.magnitude())
 	var bm int
 	for i := 0; i < len(lines); i++ {
-		for j := 1; j < len(lines); j++ {
+		for j := 0; j < len(lines); j++ {
+			if i == j {
+				continue
+			}
 			r := add18(lines[i].Copy(nil), lines[j].Copy(nil))
 			bm = maxint(bm, r.magnitude())
 		}
