@@ -150,11 +150,11 @@ func add18(left, right *snNumber) *snNumber {
 		fmt.Println(was)
 	}
 	for reduce18(root) {
-		now := root.StringDepth(0, true)
 		if verbose {
+			now := root.StringDepth(0, true)
 			printDiff(was, now)
+			was = now
 		}
-		was = now
 	}
 	return root
 }
