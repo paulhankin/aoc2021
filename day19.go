@@ -178,16 +178,6 @@ func day19() error {
 	if err != nil {
 		return err
 	}
-	smap := map[int][]sensalign{}
-	for i := 0; i < len(ss); i++ {
-		for j := i + 1; j < len(ss); j++ {
-			xf, ok := alignrot19(ss[i], ss[j])
-			if ok {
-				smap[i] = append(smap[i], sensalign{j, xf})
-				smap[j] = append(smap[j], sensalign{i, xf.inverse()})
-			}
-		}
-	}
 	done := map[int]bool{0: true}
 	todo := []int{0}
 	aligns := make([]axform3d, len(ss))
@@ -195,13 +185,16 @@ func day19() error {
 	for len(todo) > 0 {
 		i := todo[len(todo)-1]
 		todo = todo[:len(todo)-1]
-		for _, sal := range smap[i] {
-			if done[sal.sensor] {
+		for j := 0; j < len(ss); j++ {
+			if done[j] {
 				continue
 			}
-			done[sal.sensor] = true
-			aligns[sal.sensor] = sal.xf.compose(aligns[i])
-			todo = append(todo, sal.sensor)
+			xf, ok := alignrot19(ss[i], ss[j])
+			if ok {
+				done[j] = true
+				aligns[j] = xf.compose(aligns[i])
+				todo = append(todo, j)
+			}
 		}
 	}
 	beacons := map[coord3i]bool{}
