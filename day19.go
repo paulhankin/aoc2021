@@ -141,12 +141,17 @@ var sign3 = [2][]coord3i{
 // Positions in s2 are rotated by r!
 func align19(s1, s2 []coord3i, r axrot3d) (coord3i, bool) {
 	diffs := map[coord3i]int{}
-	for _, c2 := range s2 {
+	maxdiff := 0
+	for i2, c2 := range s2 {
+		if maxdiff+len(s2)-i2 < 12 {
+			return coord3i{}, false
+		}
 		c2r := r.rotate(c2)
 		for _, c1 := range s1 {
 			d := c1.sub(c2r)
 			diffs[d] += 1
-			if diffs[d] >= 12 {
+			maxdiff = maxint(maxdiff, diffs[d])
+			if maxdiff >= 12 {
 				return d, true
 			}
 		}
