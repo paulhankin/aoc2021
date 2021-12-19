@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func readDay19() ([][]coord3i, error) {
-	f, err := os.Open("day19.txt")
+func readDay19(filename string) ([][]coord3i, error) {
+	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +173,8 @@ type sensalign struct {
 	xf     axform3d
 }
 
-func day19() error {
-	ss, err := readDay19()
+func day19withFilename(s string) error {
+	ss, err := readDay19(s)
 	if err != nil {
 		return err
 	}
@@ -216,5 +216,7 @@ func day19() error {
 }
 
 func init() {
-	RegisterDay(19, day19)
+	RegisterDay(19, func() error {
+		return day19withFilename("day19.txt")
+	})
 }

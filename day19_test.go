@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"reflect"
 	"testing"
 )
 
@@ -58,5 +59,18 @@ func TestAxform3dCompose(t *testing.T) {
 			t.Errorf("%s.compose(%s)(%s) = %s, want %s", f1, f2, x, got, want)
 			t.Errorf("we got %s.compose(%s) = %s", f1, f2, f1.compose(f2))
 		}
+	}
+}
+
+func TestExample19(t *testing.T) {
+	got, err := collectResults(func() error {
+		return day19withFilename("day19_example.txt")
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := [2]interface{}{79, 3621}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got results %v for day19 example, want %v", got, want)
 	}
 }
