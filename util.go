@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+type coord3i struct {
+	x, y, z int
+}
 type coord2d struct {
 	x int
 	y int
@@ -15,12 +18,51 @@ func (c coord2d) String() string {
 	return fmt.Sprintf("%d,%d", c.x, c.y)
 }
 
+func (c coord3i) String() string {
+	return fmt.Sprintf("%d,%d,%d", c.x, c.y, c.z)
+}
+
+func (c coord3i) l1norm() int {
+	return abs(c.x) + abs(c.y) + abs(c.z)
+}
+
+func (c coord3i) sub(d coord3i) coord3i {
+	return coord3i{c.x - d.x, c.y - d.y, c.z - d.z}
+}
+
+func (c coord3i) add(d coord3i) coord3i {
+	return coord3i{c.x + d.x, c.y + d.y, c.z + d.z}
+}
+
+func (c coord3i) mul(i int) coord3i {
+	return coord3i{c.x * i, c.y * i, c.z * i}
+}
+
+func (c coord3i) get(i int) int {
+	if i == 0 {
+		return c.x
+	} else if i == 1 {
+		return c.y
+	} else if i == 2 {
+		return c.z
+	}
+	panic("bad index")
+}
+
 func parseCoord2d(s string) (coord2d, error) {
 	coords, err := parseInts(s, ",")
 	if err != nil || len(coords) != 2 {
 		return coord2d{}, fmt.Errorf("failed to parse coords %q", s)
 	}
 	return coord2d{x: coords[0], y: coords[1]}, nil
+}
+
+func parseCoord3i(s string) (coord3i, error) {
+	coords, err := parseInts(s, ",")
+	if err != nil || len(coords) != 3 {
+		return coord3i{}, fmt.Errorf("failed to parse coords %q: %v", s, err)
+	}
+	return coord3i{coords[0], coords[1], coords[2]}, nil
 }
 
 func parseInts(s, sep string) ([]int, error) {
