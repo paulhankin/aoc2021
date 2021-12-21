@@ -10,6 +10,7 @@ func readDay6() ([]int, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	scanner := bufio.NewScanner(f)
 	var r []int
 	for scanner.Scan() {
