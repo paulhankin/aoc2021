@@ -25,13 +25,17 @@ type key struct {
 	s1, s2 uint8
 }
 
+func (k key) idx() int {
+	return (int(k.p1)*10+int(k.p2))*22*22 + (22*int(k.s1) + int(k.s2))
+}
+
 var nrolls = []uint64{
 	0, 0, 0, 1, 3, 6, 7, 6, 3, 1,
 }
 
-func universes21(k key, m map[key][2]uint64) [2]uint64 {
-	v, ok := m[k]
-	if ok {
+func universes21(k key, m *[10 * 10 * 22 * 22][2]uint64) [2]uint64 {
+	v := (*m)[k.idx()]
+	if v[0]+v[1] != 0 {
 		return v
 	}
 	if k.s1 == 21 {
@@ -54,13 +58,13 @@ func universes21(k key, m map[key][2]uint64) [2]uint64 {
 			v = [2]uint64{v[0] + nrolls[d]*v2[1], v[1] + nrolls[d]*v2[0]}
 		}
 	}
-	m[k] = v
+	(*m)[k.idx()] = v
 	return v
 }
 
 func day21x2(p1i, p2i int) {
-	m := map[key][2]uint64{}
-	v := universes21(key{p1: uint8(p1i - 1), p2: uint8(p2i - 1)}, m)
+	var m [10 * 10 * 22 * 22][2]uint64
+	v := universes21(key{p1: uint8(p1i - 1), p2: uint8(p2i - 1)}, &m)
 	if v[0] > v[1] {
 		partPrint(2, v[0])
 	} else {
