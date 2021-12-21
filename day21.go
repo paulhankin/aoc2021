@@ -21,36 +21,12 @@ func day21x1(p1, p2 int) {
 }
 
 type key struct {
-	n      int
-	p1, p2 int
-	s1, s2 int
+	p1, p2 uint8
+	s1, s2 uint8
 }
 
 var nrolls = []uint64{
 	0, 0, 0, 1, 3, 6, 7, 6, 3, 1,
-}
-
-func (k *key) posAdd(n, v int) {
-	if n == 0 {
-		k.p1 = (k.p1 + v) % 10
-	} else {
-		k.p2 = (k.p2 + v) % 10
-	}
-}
-func (k *key) posGet(n int) int {
-	if n == 0 {
-		return k.p1
-	} else {
-		return k.p2
-	}
-}
-
-func (k *key) scoreAdd(n, v int) {
-	if n == 0 {
-		k.s1 = minint(21, k.s1+v)
-	} else {
-		k.s2 = minint(21, k.s2+v)
-	}
 }
 
 func universes21(k key, m map[key][2]uint64) [2]uint64 {
@@ -64,12 +40,18 @@ func universes21(k key, m map[key][2]uint64) [2]uint64 {
 		v = [2]uint64{0, 1}
 	} else {
 		for d := 3; d <= 9; d++ {
-			k2 := k
-			k2.n = 1 - k.n
-			k2.posAdd(k.n, d)
-			k2.scoreAdd(k.n, k2.posGet(k.n)+1)
+			s2 := k.s1 + (k.p1+uint8(d))%10 + 1
+			if s2 > 21 {
+				s2 = 21
+			}
+			k2 := key{
+				p1: k.p2,
+				p2: (k.p1 + uint8(d)) % 10,
+				s1: k.s2,
+				s2: s2,
+			}
 			v2 := universes21(k2, m)
-			v = [2]uint64{v[0] + nrolls[d]*v2[0], v[1] + nrolls[d]*v2[1]}
+			v = [2]uint64{v[0] + nrolls[d]*v2[1], v[1] + nrolls[d]*v2[0]}
 		}
 	}
 	m[k] = v
@@ -78,7 +60,7 @@ func universes21(k key, m map[key][2]uint64) [2]uint64 {
 
 func day21x2(p1i, p2i int) {
 	m := map[key][2]uint64{}
-	v := universes21(key{n: 0, p1: p1i - 1, p2: p2i - 1}, m)
+	v := universes21(key{p1: uint8(p1i - 1), p2: uint8(p2i - 1)}, m)
 	if v[0] > v[1] {
 		partPrint(2, v[0])
 	} else {
@@ -88,7 +70,7 @@ func day21x2(p1i, p2i int) {
 
 func init() {
 	RegisterDay(21, func() error {
-		p1, p2 := 6, 9 // 4, 8
+		p1, p2 := 6, 9
 		day21x1(p1, p2)
 		day21x2(p1, p2)
 		return nil
