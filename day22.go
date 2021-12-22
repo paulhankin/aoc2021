@@ -118,38 +118,26 @@ func filterCuboids(R cuboid, cs []cuboid) []cuboid {
 	return rcs
 }
 
-// x/y rounding towards negative infinity
-func divd(x, y int) int {
-	if x < 0 {
-		x -= (y - 1)
-		return x / y
-	}
-	return x / y
-}
-
-func (c cuboid) divide(axis int) (cuboid, cuboid) {
+func (c cuboid) divide(axis, at int) (cuboid, cuboid) {
 	left, right := c, c
 	if axis == 0 {
 		if c.dx() < 2 {
 			panic("dx")
 		}
-		m := divd(c.max.x+c.min.x, 2)
-		left.max.x = m
-		right.min.x = m + 1
+		left.max.x = at
+		right.min.x = at + 1
 	} else if axis == 1 {
 		if c.dy() < 2 {
 			panic("dy")
 		}
-		m := divd(c.max.y+c.min.y, 2)
-		left.max.y = m
-		right.min.y = m + 1
+		left.max.y = at
+		right.min.y = at + 1
 	} else {
 		if c.dz() < 2 {
 			panic("dz")
 		}
-		m := divd(c.max.z+c.min.z, 2)
-		left.max.z = m
-		right.min.z = m + 1
+		left.max.z = at
+		right.min.z = at + 1
 	}
 	return left, right
 }
@@ -181,15 +169,45 @@ func countCuboids(R cuboid, cs []cuboid) int {
 		}
 		return r
 	}
+	// Find a place to cut the region such that it's divided
+	// into two regions, and that the cut is on the edge of
+	// at least one cuboid. That guarantees that we can't do
+	// too many useless cuts which don't reduce the number of
+	// cuboids we're considering: either the region shrinks to
+	// the bounds of the cuboids in one axis, or at least one
+	// cuboid is entirely on one side of the cut.
 	axis := 0
-	if R.dx() >= R.dy() && R.dx() >= R.dz() {
-		axis = 0
-	} else if R.dy() >= R.dz() {
-		axis = 1
-	} else {
-		axis = 2
+	at := 0
+	for _, c := range cs {
+		if c.min.x > R.min.x {
+			axis = 0
+			at = c.min.x - 1
+			break
+		} else if c.max.x < R.max.x {
+			axis = 0
+			at = c.max.x
+			break
+		}
+		if c.min.y > R.min.y {
+			axis = 1
+			at = c.min.y - 1
+			break
+		} else if c.max.y < R.max.y {
+			axis = 1
+			at = c.max.y
+			break
+		}
+		if c.min.z > R.min.z {
+			axis = 2
+			at = c.min.z - 1
+			break
+		} else if c.max.z < R.max.z {
+			axis = 2
+			at = c.max.z
+			break
+		}
 	}
-	left, right := R.divide(axis)
+	left, right := R.divide(axis, at)
 	return countCuboids(left, cs) + countCuboids(right, cs)
 }
 
@@ -198,19 +216,14 @@ func day22filename(name string) error {
 	if err != nil {
 		return err
 	}
-	c1 := cuboid{min: coord3i{-50, -50, -50}, max: coord3i{50, 50, 50}}
-	partPrint(1, countCuboids(c1, cs))
-	var M int
-	for _, cs := range cs {
-		M = maxint(M, abs(cs.min.x))
-		M = maxint(M, abs(cs.min.y))
-		M = maxint(M, abs(cs.min.z))
-		M = maxint(M, abs(cs.max.x))
-		M = maxint(M, abs(cs.max.y))
-		M = maxint(M, abs(cs.max.z))
+	const M = 130000
+	Rs := []cuboid{
+		{min: coord3i{-50, -50, -50}, max: coord3i{50, 50, 50}},
+		{min: coord3i{-M, -M, -M}, max: coord3i{M, M, M}},
 	}
-	c2 := cuboid{min: coord3i{-M, -M, -M}, max: coord3i{M, M, M}}
-	partPrint(1, countCuboids(c2, cs))
+	for pm1, rs := range Rs {
+		partPrint(pm1+1, countCuboids(rs, cs))
+	}
 	return nil
 }
 
