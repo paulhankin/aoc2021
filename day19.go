@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 )
 
 func readDay19(filename string) ([][]coord3i, error) {
@@ -185,17 +186,26 @@ func day19withFilename(s string) error {
 	for len(todo) > 0 {
 		i := todo[len(todo)-1]
 		todo = todo[:len(todo)-1]
+		var wg sync.WaitGroup
+		var mut sync.Mutex
 		for j := 0; j < len(ss); j++ {
 			if done[j] {
 				continue
 			}
-			xf, ok := alignrot19(ss[i], ss[j])
-			if ok {
-				done[j] = true
-				aligns[j] = xf.compose(aligns[i])
-				todo = append(todo, j)
-			}
+			wg.Add(1)
+			go func(j int) {
+				xf, ok := alignrot19(ss[i], ss[j])
+				if ok {
+					mut.Lock()
+					defer mut.Unlock()
+					done[j] = true
+					aligns[j] = xf.compose(aligns[i])
+					todo = append(todo, j)
+				}
+				wg.Done()
+			}(j)
 		}
+		wg.Wait()
 	}
 	beacons := map[coord3i]bool{}
 	for i, s := range ss {
