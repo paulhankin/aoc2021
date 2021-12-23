@@ -75,11 +75,12 @@ func (o *openSet) Pop() int {
 
 // MinPath finds a minimum path from start to target,
 // returning the cost, or -1 if no such path exists.
-// adjacent(i) returns the edges from a given node along
+// adjacent(nc, i) returns the edges from a given node along
 // with the cost of traversing from i to the new node.
+// It passes in a slice to append nodecosts to (to avoid garbage).
 // heuristic(i) is an estimate of the cost of travelling
 // from i to target, never over-estimating (ie: is admissible).
-func MinPath(start, target int, adjacent func(int) []NodeCost, heuristic func(int) int, cacheHeuristic bool) int {
+func MinPath(start, target int, adjacent func(int, []NodeCost) []NodeCost, heuristic func(int) int, cacheHeuristic bool) int {
 	openSet := newOpenSet()
 	openSet.update(start, heuristic(start))
 	var hc map[int]int
@@ -89,12 +90,14 @@ func MinPath(start, target int, adjacent func(int) []NodeCost, heuristic func(in
 	gs := map[int]int{}
 	gs[start] = 0
 
+	nc := make([]NodeCost, 0, 120)
+
 	for openSet.len() > 0 {
 		current := openSet.Pop()
 		if current == target {
 			return gs[current]
 		}
-		for _, ec := range adjacent(current) {
+		for _, ec := range adjacent(current, nc[:0]) {
 			tgs := gs[current] + ec.Cost
 			if cgs, ok := gs[ec.Node]; !ok || tgs < cgs {
 				gs[ec.Node] = tgs

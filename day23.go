@@ -292,8 +292,7 @@ func solve23(s state23) int {
 		rstates[states[x]] = x
 		return states[x]
 	}
-	adj := func(i int) []NodeCost {
-		var r []NodeCost
+	adj := func(i int, r []NodeCost) []NodeCost {
 		for _, a := range rstates[i].adjacent() {
 			r = append(r, NodeCost{getState(a.s), a.cost})
 		}

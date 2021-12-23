@@ -33,9 +33,8 @@ func minPath(lines [][]int) int {
 	c2i := func(i int) (int, int) {
 		return i / n, i % n
 	}
-	adj := func(x int) []NodeCost {
+	adj := func(x int, r []NodeCost) []NodeCost {
 		i, j := c2i(x)
-		r := make([]NodeCost, 0, 4)
 		for d := 0; d < 4; d++ {
 			di, dj := dir4(d)
 			if i+di < 0 || i+di >= m || j+dj < 0 || j+dj >= n {
