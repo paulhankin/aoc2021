@@ -107,8 +107,8 @@ func MinPath(start, target int, adjacent func(int, []NodeCost) []NodeCost, heuri
 					h, ok = hc[ec.Node]
 					if !ok {
 						h = heuristic(ec.Node)
+						hc[ec.Node] = h
 					}
-					hc[ec.Node] = h
 				} else {
 					h = heuristic(ec.Node)
 				}
