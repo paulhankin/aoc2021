@@ -208,35 +208,35 @@ func (s state23) ok() bool {
 	return cs == [4]int{4, 4, 4, 4}
 }
 
-func solve23(s state23, m map[state23]int) int {
-	if cost, ok := m[s]; ok {
-		return cost
-	}
-	const infinity = 99999999
-	best := infinity
-	for _, sc := range s.adjacent() {
-		if !sc.s.ok() {
-			log.Fatalf("from\n%s\nto\n%s\n\n", s, sc.s)
+func solve23(s state23) int {
+	states := map[state23]int{}
+	rstates := map[int]state23{}
+	getState := func(x state23) int {
+		if r, ok := states[x]; ok {
+			return r
 		}
-		// fmt.Printf("from\n%s\nto\n%s\n", s, sc.s)
-		c := solve23(sc.s, m) + sc.cost
-		if c < best {
-			best = c
-		}
+		states[x] = len(states)
+		rstates[states[x]] = x
+		return states[x]
 	}
-	return best
+	adj := func(i int) []NodeCost {
+		var r []NodeCost
+		for _, a := range rstates[i].adjacent() {
+			r = append(r, NodeCost{getState(a.s), a.cost})
+		}
+		return r
+	}
+	heur := func(i int) int {
+		return 0
+	}
+	start := getState(s)
+	target := getState(newState23("ABCDABCD", ""))
+	return MinPath(start, target, adj, heur)
 }
 
 func day23s(s string) {
-	m := map[state23]int{}
-	// insert the solved state
-	m[newState23("ABCDABCD", "")] = 0
-	partPrint(1, solve23(newState23(s, ""), m))
-
-	m = map[state23]int{}
-	// insert the solved state
-	m[newState23("ABCDABCD", "")] = 0
-	partPrint(2, solve23(newState23(s, "DCBADBAC"), m))
+	partPrint(1, solve23(newState23(s, "")))
+	partPrint(2, solve23(newState23(s, "DCBADBAC")))
 }
 
 func init() {
