@@ -11,6 +11,79 @@ type state23 struct {
 	b [7 + 4*4]byte
 }
 
+// heuristic provides a lower-bound on the cost of solving this state.
+func (s state23) heuristic() int {
+	var cost int
+	var lc [4]int // next home of each type of slug to fill
+	for i := 0; i < 4; i++ {
+		slug := 'A' + byte(i)
+		for row := 3; row >= 0; row-- {
+			if s.b[7+row*4+i] != slug {
+				lc[i] = row
+				break
+			}
+		}
+	}
+	// A slug in a home on the given row and column has to move
+	// if it's in the wrong home, or if there's a wrong slug below it.
+	mustMove := func(row, i int) bool {
+		slug := 'A' + byte(i)
+		for r := row; r < 4; r++ {
+			if s.b[7+4*r+i] != slug {
+				return true
+			}
+		}
+		return false
+	}
+	upDownCost := func(start, target int) int {
+		is := (start - 7) % 4
+		rs := (start - 7) / 4
+		it := (target - 7) % 4
+		rt := (target - 7) / 4
+
+		if is == it {
+			// We have to move up out of the home, across at least one, then
+			// back at least one, and then back down the home.
+			return rs + 1 + rt + 1 + 2
+		}
+		// We have to move out of our current wrong home (rs+1)
+		// across to the target home (abs(2*is-2*it))
+		// down to the correct home (rt+1)
+		return rs + 1 + rt + 1 + abs(2*is-2*it)
+	}
+	downCost := func(start, target int) int {
+		it := (target - 7) % 4
+		rt := (target - 7) / 4
+		// We have to move across to the position of the target home
+		// and then down to the right row.
+		return abs(topToCorridor(start)-(2+2*it)) + rt + 1
+	}
+	for i := 0; i < 4; i++ {
+		for row := 3; row >= 0; row-- {
+			start := 7 + row*4 + i
+			slug := s.b[start]
+			if slug == '.' {
+				continue
+			}
+			if mustMove(row, i) {
+				target := 7 + 4*lc[slug-'A'] + int(slug-'A')
+				cost += upDownCost(start, target) * slugCost(slug)
+				lc[slug-'A']--
+			}
+		}
+	}
+	for i := 0; i < 7; i++ {
+		slug := s.b[i]
+		if slug == '.' {
+			continue
+		}
+		target := 7 + 4*lc[slug-'A'] + int(slug-'A')
+		cost += downCost(i, target) * slugCost(slug)
+		lc[slug-'A']--
+	}
+	return cost
+}
+
 func (x state23) String() string {
 	s := x.b
 	rows := []string{
@@ -227,7 +300,7 @@ func solve23(s state23) int {
 		return r
 	}
 	heur := func(i int) int {
-		return 0
+		return rstates[i].heuristic()
 	}
 	start := getState(s)
 	target := getState(newState23("ABCDABCD", ""))
@@ -240,12 +313,8 @@ func day23s(s string) {
 }
 
 func init() {
-	s0example := "BCBDADCA"
-	s0 := "BCADBCDA"
-	_ = s0example
-	_ = s0
 	RegisterDay(23, func() error {
-		day23s(s0)
+		day23s("BCADBCDA")
 		return nil
 	})
 }
