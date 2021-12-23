@@ -3,31 +3,53 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
 type state23 struct {
-	// 7 on the top row, 4 on the next row, 4 on the next row
-	b [15]byte
+	// 7 on the top row, 4 on the next 4 rows
+	b [7 + 4*4]byte
 }
 
 func (x state23) String() string {
 	s := x.b
-	top := fmt.Sprintf("%c%c.%c.%c.%c.%c%c", s[0], s[1], s[2], s[3], s[4], s[5], s[6])
-	mid := fmt.Sprintf("  %c %c %c %c", s[7], s[8], s[9], s[10])
-	bot := fmt.Sprintf("  %c %c %c %c", s[11], s[12], s[13], s[14])
-	return top + "\n" + mid + "\n" + bot
+	rows := []string{
+		fmt.Sprintf("%c%c.%c.%c.%c.%c%c", s[0], s[1], s[2], s[3], s[4], s[5], s[6]),
+	}
+	for i := 0; i < 4; i++ {
+		rows = append(rows, fmt.Sprintf("  %c %c %c %c", s[7+i*4], s[8+i*4], s[9+i*4], s[10+i*4]))
+	}
+	return strings.Join(rows, "\n")
 }
 
-func newState23(s string) state23 {
+func newState23(s string, insert string) state23 {
 	var r state23
 	if len(s) != 8 {
 		log.Fatalf("bad input string %q", s)
 	}
-	for i := 0; i < 15; i++ {
+	for i := 0; i < 7+4*4; i++ {
 		if i < 7 {
 			r.b[i] = '.'
 		} else {
-			r.b[i] = s[i-7]
+			row := (i - 7) / 4
+			col := (i - 7) % 4
+			if insert != "" {
+				if row == 0 {
+					r.b[i] = s[col]
+				} else if row == 1 {
+					r.b[i] = insert[col]
+				} else if row == 2 {
+					r.b[i] = insert[4+col]
+				} else {
+					r.b[i] = s[4+col]
+				}
+			} else {
+				if row < 2 {
+					r.b[i] = s[col+row*4]
+				} else {
+					r.b[i] = "ABCD"[col]
+				}
+			}
 		}
 	}
 	return r
@@ -217,15 +239,20 @@ func solve23(s state23, m map[state23]int) int {
 func day23s(s state23) {
 	m := map[state23]int{}
 	// insert the solved state
-	m[newState23("ABCDABCD")] = 0
+	m[newState23("ABCDABCD", "")] = 0
 	partPrint(1, solve23(s, m))
 }
 
 func init() {
-	s0example := newState23("BCBDADCA")
-	s0 := newState23("BCADBCDA")
-	_ = s0
+	s0example := newState23("BCBDADCA", "")
+	s0 := newState23("BCADBCDA", "")
+	insert := "CDBADBAC"
+	s0example2 := newState23("BCBDADCA", insert)
+	s02 := newState23("BCADBCDA", insert)
 	_ = s0example
+	_ = s0
+	_ = s0example2
+	_ = s02
 	RegisterDay(23, func() error {
 		day23s(s0)
 		return nil
