@@ -105,7 +105,7 @@ func (s *state23) findSlugPath(x byte, dest int) (int, int) {
 		if pathlen == 0 {
 			continue
 		}
-		pathlen += b2i(dest >= 7) + b2i(dest >= 11)
+		pathlen += (dest-7)/4 + 1
 		return i, pathlen * slugCost(x)
 	}
 	return 0, 0
@@ -119,23 +119,25 @@ func normalize23(s state23) (state23, int) {
 	for changed := true; changed; {
 		changed = false
 		for i := 0; i < 4; i++ {
-			slug := 'A' + byte(i)
-			if s.b[11+i] == '.' {
-				if s.b[7+i] != '.' {
-					fmt.Println(s)
-					log.Fatalf("found empty square on bottom home, but above square _not_ empty!")
+			for row := 3; row >= 0; row-- {
+				slug := 'A' + byte(i)
+				target := 7 + row*4 + i
+				if s.b[target] != '.' {
+					continue
 				}
-				if loc, cost := s.findSlugPath(slug, 11+i); cost > 0 {
-					s.b[loc] = '.'
-					s.b[11+i] = slug
-					tcost += cost
-					changed = true
+				valid := true
+				for r := 3; r > row; r-- {
+					if s.b[7+r*4+i] != slug {
+						valid = false
+						break
+					}
 				}
-			}
-			if s.b[11+i] == slug && s.b[7+i] == '.' {
-				if loc, cost := s.findSlugPath(slug, 7+i); cost > 0 {
+				if !valid {
+					continue
+				}
+				if loc, cost := s.findSlugPath(slug, target); cost > 0 {
 					s.b[loc] = '.'
-					s.b[7+i] = slug
+					s.b[target] = slug
 					tcost += cost
 					changed = true
 				}
@@ -161,47 +163,35 @@ func (s state23) adjacent() []stateCost23 {
 	var r []stateCost23
 	for i := 0; i < 4; i++ {
 		hs := 'A' + byte(i)
-		if s.b[7+i] == '.' {
-			continue
-		}
-		if s.b[7+i] == hs && s.b[11+i] == hs {
-			continue
-		}
-		for j := 0; j < 7; j++ {
-			if cost := s.locSlugPath(i*2+2, topToCorridor(j)); cost > 0 {
-				ns := s
-				slug := ns.b[7+i]
-				ns.b[j] = slug
-				ns.b[7+i] = '.'
-				if !ns.ok() {
-					log.Fatalf("moved from middle\n%s\nto\n%s", s, ns)
-				}
-				ns, nc := normalize23(ns)
-				r = append(r, stateCost23{ns, (cost+1)*slugCost(slug) + nc})
+		for row := 0; row < 4; row++ {
+			start := 7 + i + row*4
+			if s.b[start] == '.' {
+				continue
 			}
-		}
-	}
-
-	for i := 0; i < 4; i++ {
-		hs := 'A' + byte(i)
-		if s.b[11+i] == '.' {
-			continue
-		}
-		if s.b[11+i] == hs || s.b[7+i] != '.' {
-			continue
-		}
-		for j := 0; j < 7; j++ {
-			if cost := s.locSlugPath(i*2+2, topToCorridor(j)); cost > 0 {
-				ns := s
-				slug := ns.b[11+i]
-				ns.b[j] = slug
-				ns.b[11+i] = '.'
-				if !ns.ok() {
-					log.Fatalf("moved from bottom %d->%d\n%s\nto\n%s", i, j, s, ns)
+			allSlugs := true
+			for x := start; x < len(s.b); x += 4 {
+				if s.b[x] != hs {
+					allSlugs = false
 				}
-				ns, nc := normalize23(ns)
-				r = append(r, stateCost23{ns, (cost+2)*slugCost(slug) + nc})
 			}
+			if allSlugs {
+				// We don't need to check lower rows
+				break
+			}
+			for j := 0; j < 7; j++ {
+				if cost := s.locSlugPath(i*2+2, topToCorridor(j)); cost > 0 {
+					ns := s
+					slug := ns.b[start]
+					ns.b[j] = slug
+					ns.b[start] = '.'
+					if !ns.ok() {
+						log.Fatalf("moved from middle\n%s\nto\n%s", s, ns)
+					}
+					ns, nc := normalize23(ns)
+					r = append(r, stateCost23{ns, (cost+1+row)*slugCost(slug) + nc})
+				}
+			}
+			break
 		}
 	}
 
@@ -215,7 +205,7 @@ func (s state23) ok() bool {
 			cs[c-'A']++
 		}
 	}
-	return cs == [4]int{2, 2, 2, 2}
+	return cs == [4]int{4, 4, 4, 4}
 }
 
 func solve23(s state23, m map[state23]int) int {
@@ -228,6 +218,7 @@ func solve23(s state23, m map[state23]int) int {
 		if !sc.s.ok() {
 			log.Fatalf("from\n%s\nto\n%s\n\n", s, sc.s)
 		}
+		// fmt.Printf("from\n%s\nto\n%s\n", s, sc.s)
 		c := solve23(sc.s, m) + sc.cost
 		if c < best {
 			best = c
@@ -236,23 +227,23 @@ func solve23(s state23, m map[state23]int) int {
 	return best
 }
 
-func day23s(s state23) {
+func day23s(s string) {
 	m := map[state23]int{}
 	// insert the solved state
 	m[newState23("ABCDABCD", "")] = 0
-	partPrint(1, solve23(s, m))
+	partPrint(1, solve23(newState23(s, ""), m))
+
+	m = map[state23]int{}
+	// insert the solved state
+	m[newState23("ABCDABCD", "")] = 0
+	partPrint(2, solve23(newState23(s, "DCBADBAC"), m))
 }
 
 func init() {
-	s0example := newState23("BCBDADCA", "")
-	s0 := newState23("BCADBCDA", "")
-	insert := "CDBADBAC"
-	s0example2 := newState23("BCBDADCA", insert)
-	s02 := newState23("BCADBCDA", insert)
+	s0example := "BCBDADCA"
+	s0 := "BCADBCDA"
 	_ = s0example
 	_ = s0
-	_ = s0example2
-	_ = s02
 	RegisterDay(23, func() error {
 		day23s(s0)
 		return nil
