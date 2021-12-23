@@ -79,18 +79,12 @@ func (o *openSet) Pop() int {
 // with the cost of traversing from i to the new node.
 // heuristic(i) is an estimate of the cost of travelling
 // from i to target, never over-estimating (ie: is admissible).
-func MinPath(start, target int, adjacent func(int) []NodeCost, heuristic func(int) int) int {
+func MinPath(start, target int, adjacent func(int) []NodeCost, heuristic func(int) int, cacheHeuristic bool) int {
 	openSet := newOpenSet()
 	openSet.update(start, heuristic(start))
-	hc := map[int]int{}
-	back := map[int]int{}
-	h := func(x int) int {
-		if r, ok := hc[x]; ok {
-			return r
-		}
-		r := heuristic(x)
-		hc[x] = r
-		return r
+	var hc map[int]int
+	if cacheHeuristic {
+		hc = map[int]int{}
 	}
 	gs := map[int]int{}
 	gs[start] = 0
@@ -103,9 +97,19 @@ func MinPath(start, target int, adjacent func(int) []NodeCost, heuristic func(in
 		for _, ec := range adjacent(current) {
 			tgs := gs[current] + ec.Cost
 			if cgs, ok := gs[ec.Node]; !ok || tgs < cgs {
-				back[ec.Node] = current
 				gs[ec.Node] = tgs
-				openSet.update(ec.Node, tgs+h(ec.Node))
+				h := 0
+				if cacheHeuristic {
+					var ok bool
+					h, ok = hc[ec.Node]
+					if !ok {
+						h = heuristic(ec.Node)
+					}
+					hc[ec.Node] = h
+				} else {
+					h = heuristic(ec.Node)
+				}
+				openSet.update(ec.Node, tgs+h)
 			}
 		}
 	}

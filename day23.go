@@ -304,7 +304,7 @@ func solve23(s state23) int {
 	}
 	start := getState(s)
 	target := getState(newState23("ABCDABCD", ""))
-	return MinPath(start, target, adj, heur)
+	return MinPath(start, target, adj, heur, true)
 }
 
 func day23s(s string) {
