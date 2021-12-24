@@ -212,18 +212,18 @@ func eval24(c con24, z int) []int {
 	return zs
 }
 
-// solve24 returns the largest string of w digits
+// solve24x returns the largest string of w digits
 // that, starting with the given z results in z=0 by the end.
-func solve24(cs []con24, z int, cache map[[2]int][]byte, smallest bool) []byte {
+func solve24x(cs []con24, z int, cache map[[2]int]int, smallest bool) int {
 	key := [2]int{len(cs), z}
 	if r, ok := cache[key]; ok {
 		return r
 	}
 	if len(cs) == 0 {
 		if z == 0 {
-			return []byte{}
+			return 0
 		} else {
-			return nil
+			return -1
 		}
 	}
 	zs := eval24(cs[0], z)
@@ -232,15 +232,28 @@ func solve24(cs []con24, z int, cache map[[2]int][]byte, smallest bool) []byte {
 		if smallest {
 			w = 1 + ww
 		}
-		b := solve24(cs[1:], zs[w-1], cache, smallest)
-		if b != nil {
-			r := append([]byte{'0' + byte(w)}, b...)
+		b := solve24x(cs[1:], zs[w-1], cache, smallest)
+		if b != -1 {
+			r := b*10 + w
 			cache[key] = r
 			return r
 		}
 	}
-	cache[key] = nil
-	return nil
+	cache[key] = -1
+	return -1
+}
+
+func revint(x int, n int) int {
+	var r int
+	for i := 0; i < n; i++ {
+		r = r*10 + (x % 10)
+		x /= 10
+	}
+	return r
+}
+
+func solve24(cs []con24, smallest bool) int {
+	return revint(solve24x(cs, 0, map[[2]int]int{}, smallest), 14)
 }
 
 func day24s(name string) error {
@@ -260,8 +273,9 @@ func day24s(name string) error {
 		con := extractConstants(b)
 		cs = append(cs, con)
 	}
-	partPrint(1, string(solve24(cs, 0, map[[2]int][]byte{}, false)))
-	partPrint(2, string(solve24(cs, 0, map[[2]int][]byte{}, true)))
+	for part := 1; part <= 2; part++ {
+		partPrint(part, solve24(cs, part == 2))
+	}
 
 	return nil
 }
